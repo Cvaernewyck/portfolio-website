@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             const { name, email, message } = fields;
 
             // ✅ Store prospect
-            await db.collection("prospects").insertOne({
+            await db.collection("flutter-prospects").insertOne({
                 name,
                 email,
                 message,
