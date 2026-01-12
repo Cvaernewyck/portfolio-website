@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Mail, MapPin, Send, Linkedin, Github, Twitter } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const ContactSection = () => {
   const ref = useRef(null);
@@ -11,11 +12,41 @@ const ContactSection = () => {
     email: "",
     message: "",
   });
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formState);
+    setIsSubmitting(true);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    console.log(formData.values);
+
+    try {
+      const res = await fetch("https://www.cedricvaernewyck.be/api/contact", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error();
+
+      toast({
+        title: "Bericht verzonden!",
+        description: "Wij nemen zo snel mogelijk contact met u op.",
+      });
+
+      form.reset();
+    } catch {
+      toast({
+        title: "Fout",
+        description: "Bericht kon niet worden verzonden.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -67,7 +98,7 @@ const ContactSection = () => {
                 <div>
                   <h4 className="font-semibold font-heading mb-1">Location</h4>
                   <p className="text-muted-foreground">
-                    Available Worldwide • Remote
+                    Belgium - Ghent • Remote
                   </p>
                 </div>
               </div>
@@ -78,9 +109,10 @@ const ContactSection = () => {
                 </h4>
                 <div className="flex gap-4">
                   {[
-                    { icon: Linkedin, href: "#" },
-                    { icon: Github, href: "#" },
-                    { icon: Twitter, href: "#" },
+                    {
+                      icon: Linkedin,
+                      href: "https://be.linkedin.com/in/cedric-vaernewyck-ba102b103",
+                    },
                   ].map((social, index) => (
                     <motion.a
                       key={index}
@@ -166,8 +198,14 @@ const ContactSection = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Send className="w-5 h-5" />
-                Send Message
+                {isSubmitting ? (
+                  "`Sending..."
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    Send Message
+                  </>
+                )}
               </motion.button>
             </form>
           </motion.div>
