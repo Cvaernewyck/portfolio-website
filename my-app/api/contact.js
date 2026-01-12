@@ -60,8 +60,6 @@ export default async function handler(req, res) {
                 await transporter.sendMail({
                     from: process.env.GMAIL_USER,
                     to: toEmails.join(","),
-                    bcc: bccEmails.join(","),
-                    bcc: bccEmails,
                     subject: `Nieuw contact website flutter porfolio ${name}`,
                     html: `
    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 25px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #fdfdfd; color: #333;">
