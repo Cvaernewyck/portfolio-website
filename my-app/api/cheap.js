@@ -20,14 +20,16 @@ export default async function handler(req, res) {
         const client = await clientPromise;
         const db = client.db("flightDB");
 
-        const cached = await db.collection("cheap_cache").findOne({
-            key: "CRL_7months"
-        });
+        const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_7months`;
 
+        const cached = await db.collection("cheap_cache").findOne({ key: cacheKey });
         const now = new Date();
 
-        if (cached && (now - new Date(cached.createdAt)) < 6 * 60 * 60 * 1000) {
-            return res.status(200).json(cached.data);
+        if (cached && now - new Date(cached.createdAt) < 6 * 60 * 60 * 1000) {
+            return res.status(200).json({
+                filters: { origin: departureAirport, maxPrice: priceLimit, days: durationDays },
+                trips: cached.data
+            });
         }
 
         // 📅 Dynamic 7 month window
@@ -116,20 +118,17 @@ export default async function handler(req, res) {
                 a.outbound - b.outbound
         );
 
-        // 💾 Save to cache
+        // Save to cache
         await db.collection("cheap_cache").updateOne(
-            { key: "CRL_7months" },
-            {
-                $set: {
-                    key: "CRL_7months",
-                    data: parsed,
-                    createdAt: new Date()
-                }
-            },
+            { key: cacheKey },
+            { $set: { key: cacheKey, data: parsed, createdAt: new Date() } },
             { upsert: true }
         );
 
-        res.status(200).json(parsed);
+        res.status(200).json({
+            filters: { origin: departureAirport, maxPrice: priceLimit, days: durationDays },
+            trips: parsed
+        });
 
     } catch (err) {
         console.error("Cheap API error:", err);

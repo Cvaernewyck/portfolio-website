@@ -28,22 +28,25 @@ export default function Cheap() {
     },
   });
 
-  if (isLoading) return <div className="p-6">Loading cheap trips...</div>;
-  if (error) return <div className="p-6">Error loading trips</div>;
+  if (isLoading)
+    return <div className="p-6 text-gray-500">Loading cheap trips...</div>;
+  if (error) return <div className="p-6 text-red-500">Error loading trips</div>;
 
   return (
     <div className="p-10 space-y-6">
-      <h1 className="text-3xl font-bold">Cheap Trips ✈️</h1>
+      <h1 className="text-3xl font-bold text-primary">Cheap Trips ✈️</h1>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-xl shadow space-y-4">
+      <div className="bg-card p-4 rounded-xl shadow space-y-4">
         {/* Origin */}
         <div>
-          <label className="font-medium">Vertrek luchthaven</label>
+          <label className="font-medium text-base-content">
+            Vertrek luchthaven
+          </label>
           <select
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
-            className="border rounded p-2 ml-2"
+            className="border border-border rounded p-2 ml-2 bg-input text-base-content"
           >
             <option value="CRL">Charleroi (CRL)</option>
             <option value="BRU">Brussel (BRU)</option>
@@ -52,11 +55,11 @@ export default function Cheap() {
 
         {/* Duration */}
         <div>
-          <label className="font-medium">Aantal dagen</label>
+          <label className="font-medium text-base-content">Aantal dagen</label>
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
-            className="border rounded p-2 ml-2"
+            className="border border-border rounded p-2 ml-2 bg-input text-base-content"
           >
             <option value={1}>1 dag</option>
             <option value={2}>2 dagen</option>
@@ -66,7 +69,9 @@ export default function Cheap() {
 
         {/* Max Price Slider */}
         <div>
-          <label className="font-medium">Max prijs: €{maxPrice}</label>
+          <label className="font-medium text-base-content">
+            Max prijs: €{maxPrice}
+          </label>
           <input
             type="range"
             min="20"
@@ -74,39 +79,45 @@ export default function Cheap() {
             step="10"
             value={maxPrice}
             onChange={(e) => setMaxPrice(Number(e.target.value))}
-            className="w-full"
+            className="w-full accent-primary"
           />
         </div>
       </div>
 
-      {data.map((trip: Trip, i: number) => (
-        <div
-          key={i}
-          className="p-6 border rounded-2xl shadow hover:shadow-lg transition"
-        >
-          <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-xl font-semibold">
-                {trip.destination}, {trip.country}
-              </h2>
-              {trip.weekend && (
-                <span className="text-sm text-green-600 font-medium">
-                  🌞 Weekend Trip
-                </span>
-              )}
+      {/* Trips List */}
+      <div className="space-y-4">
+        {data.map((trip: Trip, i: number) => (
+          <div
+            key={i}
+            className="p-6 border border-border rounded-2xl shadow hover:shadow-lg transition bg-card text-base-content"
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  {trip.destination}, {trip.country}
+                </h2>
+                {trip.weekend && (
+                  <span className="text-sm text-accent font-medium">
+                    🌞 Weekend Trip
+                  </span>
+                )}
+              </div>
+
+              <div className="text-2xl font-bold text-primary">
+                €{trip.price}
+              </div>
             </div>
 
-            <div className="text-2xl font-bold">€{trip.price}</div>
+            <div className="mt-3 text-sm text-muted-foreground">
+              Outbound:{" "}
+              {format(new Date(trip.outbound), "yyyy-MM-dd (EEEE) HH:mm")}
+              <br />
+              Inbound:{" "}
+              {format(new Date(trip.inbound), "yyyy-MM-dd (EEEE) HH:mm")}
+            </div>
           </div>
-
-          <div className="mt-3 text-gray-600 text-sm">
-            Outbound:{" "}
-            {format(new Date(trip.outbound), "yyyy-MM-dd (EEEE) HH:mm")}
-            <br />
-            Inbound: {format(new Date(trip.inbound), "yyyy-MM-dd (EEEE) HH:mm")}
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
