@@ -132,6 +132,6 @@ export default async function handler(req, res) {
 
     } catch (err) {
         console.error("Cheap API error:", err);
-        res.status(500).json({ error: "Failed to fetch fares" });
+        res.status(500).json({ error: "Failed to fetch fares", filters: {}, trips: [] });
     }
 }

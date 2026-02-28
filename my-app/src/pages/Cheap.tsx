@@ -27,6 +27,8 @@ export default function Cheap() {
       return res.json();
     },
   });
+  // ✅ Safely extract trips from API response
+  const trips: Trip[] = Array.isArray(data?.trips) ? data.trips : [];
 
   if (isLoading)
     return <div className="p-6 text-gray-500">Loading cheap trips...</div>;
@@ -86,16 +88,49 @@ export default function Cheap() {
 
       {/* Trips List */}
       <div className="space-y-4">
-        {data.map((trip: Trip, i: number) => (
+        {trips.length === 0 ? (
+          <div className="p-6 text-gray-500">No trips found</div>
+        ) : (
+          trips.map((trip, i) => (
+            <div
+              key={i}
+              className="p-6 border border-border rounded-2xl shadow hover:shadow-lg transition bg-card text-base-content"
+            >
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-semibold">
+                    {trip.destination}, {trip.country}
+                  </h2>
+                  {trip.weekend && (
+                    <span className="text-sm text-accent font-medium">
+                      🌞 Weekend Trip
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-2xl font-bold text-primary">
+                  €{trip.price}
+                </div>
+              </div>
+
+              <div className="mt-3 text-sm text-muted-foreground">
+                Outbound:{" "}
+                {format(new Date(trip.outbound), "yyyy-MM-dd (EEEE) HH:mm")}
+                <br />
+                Inbound:{" "}
+                {format(new Date(trip.inbound), "yyyy-MM-dd (EEEE) HH:mm")}
+              </div>
+            </div>
+          ))
+        )}
+        {/* {data.map((trip: Trip, i: number) => (
           <div
             key={i}
             className="p-6 border border-border rounded-2xl shadow hover:shadow-lg transition bg-card text-base-content"
           >
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-semibold">
-                  {trip.destination}, {trip.country}
-                </h2>
+                <h2 className="text-xl font-semibold">{trip.destination}, {trip.country}</h2>
                 {trip.weekend && (
                   <span className="text-sm text-accent font-medium">
                     🌞 Weekend Trip
@@ -103,20 +138,16 @@ export default function Cheap() {
                 )}
               </div>
 
-              <div className="text-2xl font-bold text-primary">
-                €{trip.price}
-              </div>
+              <div className="text-2xl font-bold text-primary">€{trip.price}</div>
             </div>
 
             <div className="mt-3 text-sm text-muted-foreground">
-              Outbound:{" "}
-              {format(new Date(trip.outbound), "yyyy-MM-dd (EEEE) HH:mm")}
+              Outbound: {format(new Date(trip.outbound), "yyyy-MM-dd (EEEE) HH:mm")}
               <br />
-              Inbound:{" "}
-              {format(new Date(trip.inbound), "yyyy-MM-dd (EEEE) HH:mm")}
+              Inbound: {format(new Date(trip.inbound), "yyyy-MM-dd (EEEE) HH:mm")}
             </div>
           </div>
-        ))}
+        ))} */}
       </div>
     </div>
   );
