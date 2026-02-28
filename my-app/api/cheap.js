@@ -6,6 +6,16 @@ export default async function handler(req, res) {
     }
 
     try {
+        const { origin, maxPrice, days } = req.query;
+
+        // ✅ Allowed origins
+        const allowedOrigins = ["CRL", "BRU"];
+        const departureAirport =
+            allowedOrigins.includes(origin) ? origin : "CRL";
+
+        const priceLimit = maxPrice ? Number(maxPrice) : 120;
+        const durationDays = days ? Number(days) : 2;
+
         // 🔁 Optional: Cache in MongoDB for 6 hours
         const client = await clientPromise;
         const db = client.db("flightDB");
@@ -28,20 +38,20 @@ export default async function handler(req, res) {
         const formatDate = (d) => d.toISOString().split("T")[0];
 
         const baseParams = {
-            departureAirportIataCode: "CRL",
+            departureAirportIataCode: departureAirport,
             outboundDepartureDateFrom: formatDate(today),
             outboundDepartureDateTo: formatDate(sevenMonthsLater),
             inboundDepartureDateFrom: formatDate(new Date(today.getTime() + 86400000)),
             inboundDepartureDateTo: formatDate(new Date(sevenMonthsLater.getTime() + 86400000)),
             durationFrom: 1,
-            durationTo: 2,
+            durationTo: durationDays,
             outboundDepartureDaysOfWeek:
                 "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY",
             outboundDepartureTimeFrom: "00:00",
             outboundDepartureTimeTo: "11:00",
             inboundDepartureTimeFrom: "14:00",
             inboundDepartureTimeTo: "23:59",
-            priceValueTo: 150,
+            priceValueTo: priceLimit,
             currency: "EUR",
             market: "en-gb",
             adultPaxCount: 1

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useState } from "react";
 
 interface Trip {
   destination: string;
@@ -12,10 +13,17 @@ interface Trip {
 }
 
 export default function Cheap() {
+  const [origin, setOrigin] = useState("CRL");
+  const [maxPrice, setMaxPrice] = useState(120);
+  const [days, setDays] = useState(2);
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["cheapTrips"],
+    queryKey: ["cheapTrips", origin, maxPrice, days],
     queryFn: async () => {
-      const res = await fetch("/api/cheap");
+      const res = await fetch(
+        `/api/cheap?origin=${origin}&maxPrice=${maxPrice}&days=${days}`,
+      );
+      if (!res.ok) throw new Error("Failed");
       return res.json();
     },
   });
@@ -25,7 +33,51 @@ export default function Cheap() {
 
   return (
     <div className="p-10 space-y-6">
-      <h1 className="text-3xl font-bold">Cheap Weekend Trips ✈️</h1>
+      <h1 className="text-3xl font-bold">Cheap Trips ✈️</h1>
+
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-xl shadow space-y-4">
+        {/* Origin */}
+        <div>
+          <label className="font-medium">Vertrek luchthaven</label>
+          <select
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+            className="border rounded p-2 ml-2"
+          >
+            <option value="CRL">Charleroi (CRL)</option>
+            <option value="BRU">Brussel (BRU)</option>
+          </select>
+        </div>
+
+        {/* Duration */}
+        <div>
+          <label className="font-medium">Aantal dagen</label>
+          <select
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            className="border rounded p-2 ml-2"
+          >
+            <option value={1}>1 dag</option>
+            <option value={2}>2 dagen</option>
+            <option value={3}>3 dagen</option>
+          </select>
+        </div>
+
+        {/* Max Price Slider */}
+        <div>
+          <label className="font-medium">Max prijs: €{maxPrice}</label>
+          <input
+            type="range"
+            min="20"
+            max="300"
+            step="10"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(Number(e.target.value))}
+            className="w-full"
+          />
+        </div>
+      </div>
 
       {data.map((trip: Trip, i: number) => (
         <div
