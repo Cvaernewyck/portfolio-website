@@ -1,0 +1,128 @@
+import clientPromise from "../src/lib/mongodb.js";
+
+export default async function handler(req, res) {
+    if (req.method !== "GET") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+        // 🔁 Optional: Cache in MongoDB for 6 hours
+        const client = await clientPromise;
+        const db = client.db("flightDB");
+
+        const cached = await db.collection("cheap_cache").findOne({
+            key: "CRL_7months"
+        });
+
+        const now = new Date();
+
+        if (cached && (now - new Date(cached.createdAt)) < 6 * 60 * 60 * 1000) {
+            return res.status(200).json(cached.data);
+        }
+
+        // 📅 Dynamic 7 month window
+        const today = new Date();
+        const sevenMonthsLater = new Date();
+        sevenMonthsLater.setMonth(today.getMonth() + 7);
+
+        const formatDate = (d) => d.toISOString().split("T")[0];
+
+        const baseParams = {
+            departureAirportIataCode: "CRL",
+            outboundDepartureDateFrom: formatDate(today),
+            outboundDepartureDateTo: formatDate(sevenMonthsLater),
+            inboundDepartureDateFrom: formatDate(new Date(today.getTime() + 86400000)),
+            inboundDepartureDateTo: formatDate(new Date(sevenMonthsLater.getTime() + 86400000)),
+            durationFrom: 1,
+            durationTo: 2,
+            outboundDepartureDaysOfWeek:
+                "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY",
+            outboundDepartureTimeFrom: "00:00",
+            outboundDepartureTimeTo: "11:00",
+            inboundDepartureTimeFrom: "14:00",
+            inboundDepartureTimeTo: "23:59",
+            priceValueTo: 150,
+            currency: "EUR",
+            market: "en-gb",
+            adultPaxCount: 1
+        };
+
+        let allFares = [];
+        let page = 0;
+
+        while (true) {
+            const query = new URLSearchParams({
+                ...baseParams,
+                pageNumber: page
+            });
+
+            const response = await fetch(
+                `https://www.ryanair.com/api/farfnd/v4/roundTripFares?${query}`,
+                {
+                    headers: {
+                        "Accept": "application/json, text/plain, */*",
+                        "User-Agent": "Mozilla/5.0",
+                        "client-version": "0.0.22-alpha.2",
+                        "client": "desktop"
+                    }
+                }
+            );
+
+            if (!response.ok) break;
+
+            const data = await response.json();
+
+            allFares.push(...(data.fares || []));
+
+            if (data.nextPage == null) break;
+            page = data.nextPage;
+        }
+
+        const parsed = allFares.map(fare => {
+            const outbound = new Date(fare.outbound.departureDate);
+            const inbound = new Date(fare.inbound.departureDate);
+
+            const weekend =
+                outbound.getDay() === 6 ||
+                outbound.getDay() === 0 ||
+                inbound.getDay() === 6 ||
+                inbound.getDay() === 0;
+
+            return {
+                destination: fare.outbound.arrivalAirport.city.name,
+                country: fare.outbound.arrivalAirport.countryName,
+                outbound,
+                inbound,
+                price: fare.summary.price.value,
+                currency: fare.summary.price.currencyCode,
+                weekend
+            };
+        });
+
+        parsed.sort(
+            (a, b) =>
+                a.price - b.price ||
+                (a.weekend === b.weekend ? 0 : a.weekend ? -1 : 1) ||
+                a.outbound - b.outbound
+        );
+
+        // 💾 Save to cache
+        await db.collection("cheap_cache").updateOne(
+            { key: "CRL_7months" },
+            {
+                $set: {
+                    key: "CRL_7months",
+                    data: parsed,
+                    createdAt: new Date()
+                }
+            },
+            { upsert: true }
+        );
+
+        res.status(200).json(parsed);
+
+    } catch (err) {
+        console.error("Cheap API error:", err);
+        res.status(500).json({ error: "Failed to fetch fares" });
+    }
+}

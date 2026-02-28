@@ -5,6 +5,7 @@ import NotFound from "./pages/NotFound";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as Sonner } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
+import Cheap from "./pages/Cheap";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/cheap" element={<Cheap />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
