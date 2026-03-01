@@ -20,6 +20,8 @@ export default async function handler(req, res) {
         const client = await clientPromise;
         const db = client.db("flightDB");
 
+        const formatDate = (d) => d.toISOString().split("T")[0];
+
         const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_7months`;
 
         const cached = await db.collection("cheap_cache").findOne({ key: cacheKey });
@@ -46,7 +48,6 @@ export default async function handler(req, res) {
         const sevenMonthsLater = new Date();
         sevenMonthsLater.setMonth(today.getMonth() + 7);
 
-        const formatDate = (d) => d.toISOString().split("T")[0];
 
         const baseParams = {
             departureAirportIataCode: departureAirport,
