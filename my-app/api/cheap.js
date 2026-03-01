@@ -20,6 +20,8 @@ export default async function handler(req, res) {
         const client = await clientPromise;
         const db = client.db("flightDB");
 
+        // 📅 Dynamic 7 month window
+        const today = from ? new Date(from) : new Date();
         const formatDate = (d) => d.toISOString().split("T")[0];
 
         const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_7months`;
@@ -33,9 +35,6 @@ export default async function handler(req, res) {
                 trips: cached.data
             });
         }
-
-        // 📅 Dynamic 7 month window
-        const today = from ? new Date(from) : new Date();
 
         // fallback als invalid date
         if (isNaN(today.getTime())) {
