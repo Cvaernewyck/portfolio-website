@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { origin, maxPrice, days } = req.query;
+        const { origin, maxPrice, days, from } = req.query;
 
         // ✅ Allowed origins
         const allowedOrigins = ["CRL", "BRU"];
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         const client = await clientPromise;
         const db = client.db("flightDB");
 
-        const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_7months`;
+        const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_7months`;
 
         const cached = await db.collection("cheap_cache").findOne({ key: cacheKey });
         const now = new Date();
@@ -33,7 +33,16 @@ export default async function handler(req, res) {
         }
 
         // 📅 Dynamic 7 month window
-        const today = new Date();
+        const today = from ? new Date(from) : new Date();
+
+        // fallback als invalid date
+        if (isNaN(today.getTime())) {
+            return res.status(400).json({
+                error: "Invalid 'from' date format. Use YYYY-MM-DD",
+                filters: {},
+                trips: []
+            });
+        }
         const sevenMonthsLater = new Date();
         sevenMonthsLater.setMonth(today.getMonth() + 7);
 

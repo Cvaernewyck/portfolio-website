@@ -16,12 +16,15 @@ export default function Cheap() {
   const [origin, setOrigin] = useState("CRL");
   const [maxPrice, setMaxPrice] = useState(120);
   const [days, setDays] = useState(2);
+  const [fromDate, setFromDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["cheapTrips", origin, maxPrice, days],
+    queryKey: ["cheapTrips", origin, maxPrice, days, fromDate],
     queryFn: async () => {
       const res = await fetch(
-        `/api/cheap?origin=${origin}&maxPrice=${maxPrice}&days=${days}`,
+        `/api/cheap?origin=${origin}&maxPrice=${maxPrice}&days=${days}&from=${fromDate}`,
       );
       if (!res.ok) throw new Error("Failed");
       return res.json();
@@ -53,6 +56,18 @@ export default function Cheap() {
             <option value="CRL">Charleroi (CRL)</option>
             <option value="BRU">Brussel (BRU)</option>
           </select>
+        </div>
+
+        {/* From Date */}
+        <div>
+          <label className="font-medium text-base-content">Vanaf datum</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            min={new Date().toISOString().split("T")[0]}
+            className="border border-border rounded p-2 ml-2 bg-input text-base-content"
+          />
         </div>
 
         {/* Duration */}
