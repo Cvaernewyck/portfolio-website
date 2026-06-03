@@ -65,8 +65,8 @@ export default async function handler(req, res) {
             departureAirportIataCode: departureAirport,
             outboundDepartureDateFrom: formatDate(today),
             outboundDepartureDateTo: formatDate(maxDate),
-            inboundDepartureDateFrom: formatDate(new Date(today.getTime() + 86400000)),
-            inboundDepartureDateTo: formatDate(new Date(maxDate.getTime() + 86400000)),
+            inboundDepartureDateFrom: formatDate(today),
+            inboundDepartureDateTo: formatDate(maxDate),
             durationFrom: 1,
             durationTo: durationDays,
             outboundDepartureDaysOfWeek:
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
             inboundDepartureTimeTo: "23:59",
             priceValueTo: priceLimit,
             currency: "EUR",
-            market: "en-gb",
+            market: "nl-be",
             adultPaxCount: 1
         };
 
