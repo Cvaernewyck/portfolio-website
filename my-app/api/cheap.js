@@ -13,6 +13,7 @@ export default async function handler(req, res) {
         const departureAirport =
             allowedOrigins.includes(origin) ? origin : "CRL";
 
+        const priceLimit = 200;
         const durationDays = days ? Number(days) : 2;
 
         // 🔁 Optional: Cache in MongoDB for 6 hours
@@ -23,20 +24,20 @@ export default async function handler(req, res) {
         const today = from ? new Date(from) : new Date();
         const formatDate = (d) => d.toISOString().split("T")[0];
 
-        const cacheKey = [
-          departureAirport,
-          durationDays,
-          formatDate(today),
-          formatDate(maxDate),
-        ].join("_");
-        //onst cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_7months`;
+        const maxDate = to ? new Date(to) : new Date(today);
+
+        if (!to) {
+          maxDate.setMonth(maxDate.getMonth() + 7);
+        }
+
+        const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_${formatDate(maxDate)}_7months`;
 
         const cached = await db.collection("cheap_cache").findOne({ key: cacheKey });
         const now = new Date();
 
         if (cached && now - new Date(cached.createdAt) < 6 * 60 * 60 * 1000) {
             return res.status(200).json({
-                filters: { origin: departureAirport, days: durationDays },
+                filters: { origin: departureAirport, maxPrice: priceLimit, days: durationDays },
                 trips: cached.data
             });
         }
@@ -50,11 +51,7 @@ export default async function handler(req, res) {
             });
         }
 
-        const maxDate = to ? new Date(to) : new Date(today);
-
-        if (!to) {
-          maxDate.setMonth(maxDate.getMonth() + 7);
-        }
+        
 
         if (isNaN(maxDate.getTime())) {
           return res.status(400).json({
@@ -80,7 +77,7 @@ export default async function handler(req, res) {
             outboundDepartureTimeTo: "11:00",
             inboundDepartureTimeFrom: "14:00",
             inboundDepartureTimeTo: "23:59",
-            priceValueTo: 500,
+            priceValueTo: priceLimit,
             currency: "EUR",
             market: "nl-be",
             adultPaxCount: 1
@@ -165,7 +162,7 @@ export default async function handler(req, res) {
         );
 
         res.status(200).json({
-            filters: { origin: departureAirport, days: durationDays },
+            filters: { origin: departureAirport, maxPrice: priceLimit, days: durationDays },
             trips: parsed
         });
 
