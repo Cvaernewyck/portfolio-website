@@ -174,12 +174,12 @@ export default function Cheap() {
                   </h3>
 
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <Info label="Heen" icon="🛫">
-                      {format(new Date(trip.outbound), "dd/MM/yyyy HH:mm")}
+                    <Info label="Vertrekt" icon="🛫">
+                      {format(new Date(trip.outbound), "EEE dd MMM • HH:mm")}
                     </Info>
 
                     <Info label="Terug" icon="🛬">
-                      {format(new Date(trip.inbound), "dd/MM/yyyy HH:mm")}
+                      {format(new Date(trip.inbound), "EEE dd MMM • HH:mm")}
                     </Info>
 
                     <Info label="Duur" icon="📅">
