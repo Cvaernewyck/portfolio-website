@@ -80,7 +80,6 @@ export default async function handler(req, res) {
             outboundDepartureTimeTo: "11:00",
             inboundDepartureTimeFrom: "14:00",
             inboundDepartureTimeTo: "23:59",
-            priceValueTo: priceLimit,
             currency: "EUR",
             market: "nl-be",
             adultPaxCount: 1
