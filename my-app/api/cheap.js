@@ -140,6 +140,18 @@ export default async function handler(req, res) {
                 a.outbound - b.outbound
         );
 
+        const ip =
+          req.headers["x-forwarded-for"]?.split(",")[0] ||
+          req.socket.remoteAddress ||
+          "unknown";
+
+        await db.collection("visits").insertOne({
+          ip,
+          page: "/cheap",
+          origin: departureAirport,
+          createdAt: new Date(),
+        });
+
         // Save to cache
         await db.collection("cheap_cache").updateOne(
             { key: cacheKey },

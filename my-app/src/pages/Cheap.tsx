@@ -41,129 +41,190 @@ export default function Cheap() {
 
   const trips: Trip[] = Array.isArray(data?.trips) ? data.trips : [];
 
-  if (isLoading)
-    return (
-      <div className="p-4 sm:p-6 text-gray-500">Loading cheap trips...</div>
-    );
-
-  if (error)
-    return <div className="p-4 sm:p-6 text-red-500">Error loading trips</div>;
-
   return (
-    <div className="p-4 sm:p-6 lg:p-10 space-y-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl sm:text-3xl font-bold text-primary">
-        Cheap Trips ✈️
-      </h1>
+    <main className="min-h-screen bg-gradient-to-br from-sky-100 via-orange-50 to-yellow-100">
+      <div
+        className="min-h-screen bg-cover bg-center bg-fixed"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.78), rgba(255,255,255,0.9)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80')",
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-10 space-y-6">
+          <section className="rounded-3xl bg-white/80 backdrop-blur shadow-xl p-5 sm:p-8 border border-white/60">
+            <p className="text-sm font-semibold text-orange-500">
+              Goedkope tripjes vanaf België
+            </p>
 
-      <div className="bg-card p-4 rounded-xl shadow grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="font-medium text-base-content">
-            Vertrek luchthaven
-          </label>
-          <select
-            value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
-            className="border border-border rounded p-2 bg-input text-base-content w-full"
-          >
-            <option value="CRL">Charleroi (CRL)</option>
-            <option value="BRU">Brussel (BRU)</option>
-          </select>
-        </div>
+            <h1 className="mt-2 text-3xl sm:text-5xl font-black tracking-tight text-slate-900">
+              Cheap Trips ✈️
+            </h1>
 
-        <div className="flex flex-col gap-1">
-          <label className="font-medium text-base-content">Vanaf datum</label>
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => {
-              setFromDate(e.target.value);
-              if (toDate && e.target.value > toDate) {
-                setToDate("");
-              }
-            }}
-            min={today}
-            className="border border-border rounded p-2 bg-input text-base-content w-full"
-          />
-        </div>
+            <p className="mt-3 text-slate-600 max-w-2xl">
+              Vind snel zonnige citytrips en weekenddeals binnen je budget.
+            </p>
+          </section>
 
-        <div className="flex flex-col gap-1">
-          <label className="font-medium text-base-content">Tot datum</label>
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            min={fromDate}
-            className="border border-border rounded p-2 bg-input text-base-content w-full"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="font-medium text-base-content">Aantal dagen</label>
-          <select
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-            className="border border-border rounded p-2 bg-input text-base-content w-full"
-          >
-            <option value={1}>1 dag</option>
-            <option value={2}>2 dagen</option>
-            <option value={3}>3 dagen</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-4">
-          <label className="font-medium text-base-content">
-            Max prijs: €{maxPrice}
-          </label>
-          <input
-            type="range"
-            min="20"
-            max="300"
-            step="10"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(Number(e.target.value))}
-            className="w-full accent-primary"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {trips.length === 0 ? (
-          <div className="p-4 sm:p-6 text-gray-500">No trips found</div>
-        ) : (
-          trips.map((trip, i) => (
-            <div
-              key={i}
-              className="p-4 sm:p-6 border border-border rounded-2xl shadow hover:shadow-lg transition bg-card text-base-content"
-            >
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                <div>
-                  <h2 className="text-lg sm:text-xl font-semibold">
-                    {trip.destination}, {trip.country}
-                  </h2>
-
-                  {trip.weekend && (
-                    <span className="text-sm text-accent font-medium">
-                      🌞 Weekend Trip
-                    </span>
-                  )}
-                </div>
-
-                <div className="text-2xl font-bold text-primary">
-                  €{trip.price}
-                </div>
+          <section className="sticky top-3 z-10 bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-white/70 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-slate-700">
+                  Vertrek
+                </label>
+                <select
+                  value={origin}
+                  onChange={(e) => setOrigin(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900"
+                >
+                  <option value="CRL">Charleroi</option>
+                  <option value="BRU">Brussel</option>
+                </select>
               </div>
 
-              <div className="mt-3 text-sm text-muted-foreground leading-6">
-                Outbound:{" "}
-                {format(new Date(trip.outbound), "yyyy-MM-dd (EEEE) HH:mm")}
-                <br />
-                Inbound:{" "}
-                {format(new Date(trip.inbound), "yyyy-MM-dd (EEEE) HH:mm")}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-slate-700">
+                  Vanaf
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  min={today}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    if (toDate && e.target.value > toDate) setToDate("");
+                  }}
+                  className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-slate-700">
+                  Tot
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  min={fromDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-slate-700">
+                  Dagen
+                </label>
+                <select
+                  value={days}
+                  onChange={(e) => setDays(Number(e.target.value))}
+                  className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900"
+                >
+                  <option value={1}>1 dag</option>
+                  <option value={2}>2 dagen</option>
+                  <option value={3}>3 dagen</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-sm font-semibold text-slate-700">
+                  Max €{maxPrice}
+                </label>
+                <input
+                  type="range"
+                  min="20"
+                  max="300"
+                  step="10"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="h-12 accent-orange-500"
+                />
               </div>
             </div>
-          ))
-        )}
+          </section>
+
+          {isLoading && (
+            <div className="rounded-2xl bg-white/80 p-6 text-slate-500 shadow">
+              Trips zoeken...
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-2xl bg-red-50 p-6 text-red-600 shadow">
+              Er ging iets mis bij het laden.
+            </div>
+          )}
+
+          {!isLoading && !error && (
+            <section className="space-y-3 pb-10">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-slate-900">
+                  {trips.length} deals gevonden
+                </h2>
+              </div>
+
+              {trips.length === 0 ? (
+                <div className="rounded-2xl bg-white/85 p-6 text-slate-500 shadow">
+                  Geen trips gevonden. Probeer een hogere max prijs of ruimere
+                  datums.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {trips.map((trip, i) => (
+                    <article
+                      key={i}
+                      className="rounded-3xl bg-white/90 backdrop-blur border border-white/70 shadow-md hover:shadow-xl transition overflow-hidden"
+                    >
+                      <div className="p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-900">
+                              {trip.destination}, {trip.country}
+                            </h3>
+
+                            {trip.weekend && (
+                              <span className="mt-2 inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                                🌞 Weekend trip
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="shrink-0 rounded-2xl bg-orange-500 px-4 py-2 text-xl font-black text-white shadow">
+                            €{trip.price}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="rounded-2xl bg-slate-50 p-3">
+                            <p className="font-semibold text-slate-500">Heen</p>
+                            <p className="font-bold text-slate-800">
+                              {format(
+                                new Date(trip.outbound),
+                                "yyyy-MM-dd HH:mm",
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-slate-50 p-3">
+                            <p className="font-semibold text-slate-500">
+                              Terug
+                            </p>
+                            <p className="font-bold text-slate-800">
+                              {format(
+                                new Date(trip.inbound),
+                                "yyyy-MM-dd HH:mm",
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
