@@ -13,7 +13,6 @@ export default async function handler(req, res) {
         const departureAirport =
             allowedOrigins.includes(origin) ? origin : "CRL";
 
-        const priceLimit = 120;
         const durationDays = days ? Number(days) : 2;
 
         // 🔁 Optional: Cache in MongoDB for 6 hours
@@ -24,14 +23,20 @@ export default async function handler(req, res) {
         const today = from ? new Date(from) : new Date();
         const formatDate = (d) => d.toISOString().split("T")[0];
 
-        const cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_7months`;
+        const cacheKey = [
+          departureAirport,
+          durationDays,
+          formatDate(today),
+          formatDate(maxDate),
+        ].join("_");
+        //onst cacheKey = `${departureAirport}_${priceLimit}_${durationDays}_${formatDate(today)}_7months`;
 
         const cached = await db.collection("cheap_cache").findOne({ key: cacheKey });
         const now = new Date();
 
         if (cached && now - new Date(cached.createdAt) < 6 * 60 * 60 * 1000) {
             return res.status(200).json({
-                filters: { origin: departureAirport, maxPrice: priceLimit, days: durationDays },
+                filters: { origin: departureAirport, days: durationDays },
                 trips: cached.data
             });
         }
@@ -160,7 +165,7 @@ export default async function handler(req, res) {
         );
 
         res.status(200).json({
-            filters: { origin: departureAirport, maxPrice: priceLimit, days: durationDays },
+            filters: { origin: departureAirport, days: durationDays },
             trips: parsed
         });
 
