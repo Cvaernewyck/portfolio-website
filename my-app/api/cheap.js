@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { origin, maxPrice, days, from } = req.query;
+        const { origin, maxPrice, days, from, to} = req.query;
 
         // ✅ Allowed origins
         const allowedOrigins = ["CRL", "BRU"];
@@ -44,16 +44,29 @@ export default async function handler(req, res) {
                 trips: []
             });
         }
-        const sevenMonthsLater = new Date();
-        sevenMonthsLater.setMonth(today.getMonth() + 7);
+
+        const maxDate = to ? new Date(to) : new Date(today);
+
+        if (!to) {
+          maxDate.setMonth(maxDate.getMonth() + 7);
+        }
+
+        if (isNaN(maxDate.getTime())) {
+          return res.status(400).json({
+            error: "Invalid 'to' date format. Use YYYY-MM-DD",
+            filters: {},
+            trips: [],
+          });
+        }
+
 
 
         const baseParams = {
             departureAirportIataCode: departureAirport,
             outboundDepartureDateFrom: formatDate(today),
-            outboundDepartureDateTo: formatDate(sevenMonthsLater),
+            outboundDepartureDateTo: formatDate(maxDate),
             inboundDepartureDateFrom: formatDate(new Date(today.getTime() + 86400000)),
-            inboundDepartureDateTo: formatDate(new Date(sevenMonthsLater.getTime() + 86400000)),
+            inboundDepartureDateTo: formatDate(new Date(maxDate.getTime() + 86400000)),
             durationFrom: 1,
             durationTo: durationDays,
             outboundDepartureDaysOfWeek:
