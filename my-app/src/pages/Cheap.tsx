@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useState } from "react";
+import { nl } from "date-fns/locale";
 
 interface Trip {
   destination: string;
@@ -175,11 +176,15 @@ export default function Cheap() {
 
                   <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     <Info label="Vertrekt" icon="🛫">
-                      {format(new Date(trip.outbound), "EEE dd MMM • HH:mm")}
+                      {format(new Date(trip.outbound), "EEE dd MMM • HH:mm", {
+                        locale: nl,
+                      })}
                     </Info>
 
                     <Info label="Terug" icon="🛬">
-                      {format(new Date(trip.inbound), "EEE dd MMM • HH:mm")}
+                      {format(new Date(trip.inbound), "EEE dd MMM • HH:mm", {
+                        locale: nl,
+                      })}
                     </Info>
 
                     <Info label="Duur" icon="📅">
