@@ -6,14 +6,14 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { origin, maxPrice, days, from, to} = req.query;
+        const { origin, days, from, to} = req.query;
 
         // ✅ Allowed origins
         const allowedOrigins = ["CRL", "BRU"];
         const departureAirport =
             allowedOrigins.includes(origin) ? origin : "CRL";
 
-        const priceLimit = maxPrice ? Number(maxPrice) : 120;
+        const priceLimit = 120;
         const durationDays = days ? Number(days) : 2;
 
         // 🔁 Optional: Cache in MongoDB for 6 hours

@@ -22,11 +22,10 @@ export default function Cheap() {
   const [toDate, setToDate] = useState("");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["cheapTrips", origin, maxPrice, days, fromDate, toDate],
+    queryKey: ["cheapTrips", origin, days, fromDate, toDate],
     queryFn: async () => {
       const params = new URLSearchParams({
         origin,
-        maxPrice: String(maxPrice),
         days: String(days),
         from: fromDate,
       });
@@ -123,21 +122,6 @@ export default function Cheap() {
                   <option value={2}>2 dagen</option>
                   <option value={3}>3 dagen</option>
                 </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-semibold text-slate-700">
-                  Max €{maxPrice}
-                </label>
-                <input
-                  type="range"
-                  min="20"
-                  max="300"
-                  step="10"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="h-12 accent-orange-500"
-                />
               </div>
             </div>
           </section>
